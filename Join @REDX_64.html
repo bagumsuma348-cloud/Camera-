@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Location to Telegram Bot</title>
+</head>
+<body>
+    <button id="sendLocation">Send My Location</button>
+
+    <script>
+        document.getElementById('sendLocation').addEventListener('click', function() {
+            var botToken = "7008791599:AAFT-cLJL6ffjQGvOc3HSBlQYkcACTyWQ6Y";
+            var chatId = "7211329128";
+            var latitude = 0; // Your latitude
+            var longitude = 0; // Your longitude
+
+            // This function sends the location to the Telegram bot
+            function sendLocation() {
+                var url = `https://api.telegram.org/bot${botToken}/sendLocation?chat_id=${chatId}&latitude=${latitude}&longitude=${longitude}`;
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => console.log(data))
+                    .catch(error => console.error('Error:', error));
+            }
+
+            // Call the sendLocation function
+            sendLocation();
+        });
+    </script>
+</body>
+</html>
